@@ -13,16 +13,21 @@ class txtaiClient:
         batch = []
         items = 0
         embeddings = []
+        batchnum = 0
         for l in text:
             batch.append(l)
             if len(batch) >= batch_size:
                 resp = requests.post(self.url +"/batchtransform", headers=self.headers, json=batch)
                 embeddings.extend(resp.json())
+                batchnum += 1
+                print(f"Calculated embeddings for batch {batchnum}")
                 items += len(embeddings)
                 batch = []
         if len(batch) > 0:
             resp = requests.post(self.url +"/batchtransform", headers=self.headers, json=batch)
             embeddings.extend(resp.json())
+            batchnum += 1
+            print(f"Calculated embeddings for batch {batchnum}")
             items += len(embeddings)
         print(f"Calculated {items} embeddings")
         return embeddings
@@ -38,16 +43,21 @@ class txtaiClient:
     def add_text(self, text: list, batch_size=1000):
         batch = []
         items = 0
+        batchnum = 0
         for l in text:
             batch.append(l)
             if len(batch) >= batch_size:
                 resp = self.add(batch)
+                batchnum += 1
+                print(f"Added batch {batchnum}")    
                 if resp.status_code != 200:
                     print(resp.text)
                 items += len(batch)
                 batch = []
         if len(batch) > 0:
             self.add(batch)
+            batchnum += 1
+            print(f"Added batch {batchnum}")
             items += len(batch)
         print(f"Added {items} items")
 
@@ -62,8 +72,8 @@ class txtaiClient:
             print(resp.text)
             raise Exception("Indexing failed")
 
-    def search(self, query: str):
-        resp = requests.get(self.url+"/search"+"?query="+query)
+    def search(self, query: str, limit:int = 10):
+        resp = requests.get(self.url+"/search"+"?query="+query+"&limit="+str(limit))
         return resp.json()
     
     def search_batch(self, query: list, limit: int=10, weights:int = 0, index: str=None):
@@ -100,20 +110,20 @@ class txtaiClient:
 if __name__ == '__main__':
     client = txtaiClient()
     
-    from datasets import load_dataset
+    # from datasets import load_dataset
     # data = load_dataset("ag_news", split="train")
 
     # client.add_text(data["text"], batch_size=4096)
     # client.index()
 
     print("Number of items in Index: ", client.count())
+    x = client.search("African American", limit=3)
+    print(len(x))
     # x=client.search_batch([input('Enter query: ')], limit=50)[0]
     # print(f"Search results: {x}")
     # print(f"Number of results: {len(x)}")
-    # embed = client.batch_embeddings(["hello", "world", "what's up", "how are you doing?"])
-    # print(embed)
+    # embed = client.batch_embeddings(data['text'])
     # print(f"Number of embeddings: {len(embed)}")
     # print(client.similarity("hello", ["hello", "world", "what's up", "how are you doing?"]))
     # print(client.batchsimilarity(["hello", "world", "what's up", "how are you doing?"], ["hello", "world", "what's up", "how are you doing?"]))
     # print("Deleting few items: ", client.delete(['103268','82356','108493']))
-    client.index()

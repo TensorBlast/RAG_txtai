@@ -88,7 +88,7 @@ class Ollama:
     
     def rag_response(self, model, query, context):
         prompt = f"""
-        Answer the following question using only the context below. Only include information specifically discussed.
+        Answer the following question using only the context below. Do not mention the context in your answer.
         Question: {query}
         Context: {context}
         """
@@ -100,4 +100,3 @@ if __name__ == '__main__':
     model = ollama.list_models()
     
     print(ollama.generate('mistral:7b-instruct-q8_0', "Who sang the song 'The Real Slim Shady'?", temperature=0.5, top_p=0.95, top_k=1000))
-    
