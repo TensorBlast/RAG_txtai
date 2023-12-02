@@ -1,0 +1,6 @@
+path: /Users/moot/txtai/Index
+writable: true
+
+embeddings:
+  path: sentence-transformers/all-mpnet-base-v2
+  content: true
