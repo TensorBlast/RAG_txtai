@@ -4,3 +4,19 @@ writable: true
 embeddings:
   path: sentence-transformers/all-mpnet-base-v2
   content: true
+
+extractor:
+  path: meta-llama/Llama-2-13b-chat-hf
+
+workflow:
+  rag:
+    tasks:
+      - task: extractor
+        template: |
+          Answer the following question using the provided context. Do not include any reference to the context in your answer.
+
+          Question:
+          {text}
+
+          Context:
+        action: extractor
